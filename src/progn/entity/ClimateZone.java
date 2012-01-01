@@ -1,11 +1,10 @@
-
 //Title:        Pheno-Prognosis
 //Version:      
 //Copyright:    Copyright (c) 1999
 //Author:       Your Name
 //Company:      Your Company
 //Description:  Your description
-package progn;
+package progn.entity;
 
 public class ClimateZone {
 
@@ -37,23 +36,39 @@ double[] temp = { 3.5,  6.5,  9.5, 11.6, 13.9, 15.5, 16.8, 18.4, 18.8,
   };
 */
 
-String name;
-int startDecade;
-double[] temp;
-int frostDay;
+    private String name;
+    private int startDecade;
+    private double[] decadeAvgTemperatures;
+    private int frostDay;
 
-  public ClimateZone(String name,int startDecade,double[] temp,int frostDay){
-    this.name = name;
-    this.startDecade = startDecade;
-    this.temp = temp;
-    this.frostDay = frostDay;
-  }
-
-  public String toString(){
-    String s = name + " " + startDecade + "\n";
-    for(int x = 0;x < temp.length;x++){
-      s = s + temp[x] + "\n";
+    public ClimateZone(String name, int startDecade, double[] decadeAvgTemperatures, int frostDay) {
+        this.name = name;
+        this.startDecade = startDecade;
+        this.decadeAvgTemperatures = decadeAvgTemperatures;
+        this.frostDay = frostDay;
     }
-    return s;
-  }
+
+    public String toString() {
+        StringBuilder s = new StringBuilder(String.format("%s %d\n", name, startDecade));
+        for (double aTemp : decadeAvgTemperatures) {
+            s.append(aTemp).append("\n");
+        }
+        return s.toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getStartDecade() {
+        return startDecade;
+    }
+
+    public double[] getDecadeAvgTemperatures() {
+        return decadeAvgTemperatures;
+    }
+
+    public int getFrostDay() {
+        return frostDay;
+    }
 }

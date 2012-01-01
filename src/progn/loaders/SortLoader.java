@@ -1,21 +1,21 @@
 //Source file: D:/Work/Pheno-Prognosis/Java/source/progn/SortLoader.java
 
-package progn;
+package progn.loaders;
+
+import progn.entity.PhenoPhase;
+import progn.entity.Sort;
 
 import java.io.*;
-import java.util.Vector;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.spi.CharsetProvider;
 
 public class SortLoader {
 	private BufferedReader reader;
-	Vector sorts;
+	private List<Sort> sorts;
 
 	public SortLoader(String fil, URL base) {
-		sorts = new Vector();
+		sorts = new ArrayList<>();
 		try {
 			URL file = new URL(base, fil);
 			reader = new BufferedReader(new InputStreamReader(file.openStream(), Charset.forName("UTF-8")));
@@ -29,7 +29,7 @@ public class SortLoader {
 						group[x] = s;
 					}
 				}
-				Hashtable table = readFields(group);
+				Map table = readFields(group);
 				 //System.out.println(table);
 				String[] keys = { "культура", "сорт", "скороспелость", "фазы",
 						"названия" };
@@ -47,36 +47,29 @@ public class SortLoader {
 				Sort sss = new Sort(values[1], values[2], values[0],
 						parsePhase(values[3]), parseNames(values[4]));
 				// System.out.println(sss);
-				sorts.addElement(sss);
+				sorts.add(sss);
 			}
 		} catch (NullPointerException e) {
 		} catch (Exception e) {
 			// System.out.println();
 			e.printStackTrace();
 		}
-		
-		/*
-		for (int x = 0; x < sorts.size(); x++) {
-			Sort sort = (Sort) (sorts.elementAt(x));
-			// System.out.println(sort + "\n");
-		}*/
 	}
 
-	protected Hashtable readFields(String[] group) throws Exception {
-		Hashtable table = new Hashtable();
-		for (int x = 0; x < group.length; x++) {
-			String s = group[x];
-			StringTokenizer st = new StringTokenizer(s, "=", false);
-			String key = st.nextToken();
-			if (st.hasMoreTokens()) {
-				String value = st.nextToken();
-				table.put(key, value);
-				// System.out.println(key+" "+value);
-			} else {
-				// System.out.println("Can't find '=' in '" + s + "'");
-			}
-		}
-		return table;
+	protected Map<String, String> readFields(String[] group) throws Exception {
+		Map<String, String> fieldsMap = new HashMap<>();
+        for (String s : group) {
+            StringTokenizer st = new StringTokenizer(s, "=", false);
+            String key = st.nextToken();
+            if (st.hasMoreTokens()) {
+                String value = st.nextToken();
+                fieldsMap.put(key, value);
+                // System.out.println(key+" "+value);
+            } else {
+                // System.out.println("Can't find '=' in '" + s + "'");
+            }
+        }
+		return fieldsMap;
 	}
 
 	protected PhenoPhase[] parsePhase(String sourse) {
@@ -99,4 +92,7 @@ public class SortLoader {
 		return names;
 	}
 
+    public List<Sort> getSorts() {
+        return sorts;
+    }
 }

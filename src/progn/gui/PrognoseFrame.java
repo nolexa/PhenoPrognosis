@@ -1,4 +1,7 @@
-package progn;
+package progn.gui;
+
+import progn.YearCalendar;
+import progn.entity.Sort;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -147,8 +150,8 @@ public class PrognoseFrame extends Frame implements ItemListener {
 		Sort sort = progn.sorts[sort_choice.getSelectedIndex()];
 		int sel = startperiod_choice.getSelectedIndex();
 		startperiod_choice.removeAll();
-		for (int x = 0; x < sort.names.length - 1; x++) {
-			startperiod_choice.addItem(Sort.ALLNAMES[sort.names[x]]);
+		for (int x = 0; x < sort.getNames().length - 1; x++) {
+			startperiod_choice.addItem(Sort.ALLNAMES[sort.getNames()[x]]);
 		}
 		//startperiod_choice.select(sel);
 	}

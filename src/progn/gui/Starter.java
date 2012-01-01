@@ -1,4 +1,4 @@
-package progn;
+package progn.gui;
 
 import java.applet.Applet;
 import java.awt.*;
