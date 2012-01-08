@@ -12,6 +12,9 @@ import progn.loaders.ClimateLoader;
 import progn.loaders.SortLoader;
 
 import java.net.URL;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class PhenoPrognosis {
     Sort sort;
@@ -25,6 +28,9 @@ public class PhenoPrognosis {
     PrognoseFrame frame;
     boolean interrupted = false;
     int startPer = 0;
+
+    private Locale locale = new Locale("ru");
+    private ResourceBundle bundle = ResourceBundle.getBundle("messages", locale);
 
     // Construct the application
     public PhenoPrognosis(URL base) {
@@ -133,8 +139,7 @@ public class PhenoPrognosis {
                 if (day.length() == 1) {
                     day = "0" + day;
                 }
-                frame.area.append("\nПредупреждение: " + day + "." + month
-                        + " вероятность первого заморозка в воздухе (2 м) 20%");
+                frame.area.append("\n" + MessageFormat.format(bundle.getString("first_frost_warning"), day, month));
             }
         }
     }

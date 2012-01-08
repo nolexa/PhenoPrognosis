@@ -17,8 +17,7 @@ public class PhenoPhase {
     }
 
     public String toString() {
-        String s = factor + " " + exponent;
-        return s;
+        return factor + " " + exponent;
     }
 
     public double getFactor() {

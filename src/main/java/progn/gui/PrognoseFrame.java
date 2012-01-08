@@ -8,6 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.UnsupportedEncodingException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 public class PrognoseFrame extends Frame implements ItemListener {
@@ -20,6 +23,18 @@ public class PrognoseFrame extends Frame implements ItemListener {
 	Button b2;
 	Button b3;
 	PhenoPrognosis progn;
+
+    private Locale locale = new Locale("ru");
+    private ResourceBundle bundle =  ResourceBundle.getBundle("messages", locale);
+    
+    private String getText(String key) {
+        String val = bundle.getString(key);
+        try {
+            return new String(val.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return val;
+        }
+    }
 
 	public PrognoseFrame(PhenoPrognosis progn, String[] sortNames,
 			String[] zoneNames) {
@@ -36,7 +51,7 @@ public class PrognoseFrame extends Frame implements ItemListener {
 		Panel pan6 = new Panel(new FlowLayout());
 		Panel pan7 = new Panel(new FlowLayout());
 
-		Label sort_label = new Label("Сорт:");
+		Label sort_label = new Label(getText("label.sort"));
 		Label zone_label = new Label("Агроклиматический район:");
 		Label startdate_label = new Label("Дата начала периода (ДД.ММ):");
 		Label startperiod_label = new Label("Начальный период:");
