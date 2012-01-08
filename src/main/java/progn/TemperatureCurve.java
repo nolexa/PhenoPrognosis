@@ -6,24 +6,27 @@
 //Description:  Your description
 package progn;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
+import java.util.Arrays;
+
 public class TemperatureCurve {
+    private static final Log log = LogFactory.getLog(TemperatureCurve.class);
+
     private int startDecade;    // The decade where the curve started
     private double[] points;    // Average temperatures
     private int increment;
 
     public TemperatureCurve(int startDecade, int startFull, double[] decadeAvgTemperatures) throws ArrayIndexOutOfBoundsException {
-        int offset = startDecade - startFull;
-        double[] decades = new double[decadeAvgTemperatures.length - offset];
-        System.arraycopy(decadeAvgTemperatures, offset, decades, 0, decades.length);
         this.startDecade = startDecade;
-//    int x = find(decades,startDecade);
-        points = new double[decades.length];
+        int offset = startDecade - startFull;
+        points = new double[decadeAvgTemperatures.length - offset];
         for (int z = 0; z < points.length; z++) {
-            points[z] = countMiddle(decades, 0, z + 1);
-//      System.out.println(points[z]);
+            points[z] = new DescriptiveStatistics(Arrays.copyOfRange(decadeAvgTemperatures, offset, offset + z + 1)).getMean();
         }
         increment = 0;
-//    System.out.println("next\n");
     }
 
     public static TemperatureCurve build(int startDecade, int startFull, double[] decades, int increment) throws ArrayIndexOutOfBoundsException {
@@ -52,26 +55,6 @@ public class TemperatureCurve {
         System.out.println("next\n");
         points[points.length - 1] = from[from.length - 1] + (to[to.length - 1] - from[from.length - 1]) * inc;
 //    System.out.println(points[points.length - 1]);
-    }
-
-    /*
-      int find(DecadeTemperature[] decades,int startDecade)  throws ArrayIndexOutOfBoundsException {
-        boolean find = false;
-        int x = 0;
-        for(;(!find);x++){
-           if(decades[x].decadeNum == startDecade){
-             find = true;
-           }
-        }
-         return --x;
-      }
-    */
-    public static double countMiddle(double[] source, int start, int stop) throws ArrayIndexOutOfBoundsException {
-        double sum = 0;
-        for (int x = start; x < stop; x++) {
-            sum += source[x];
-        }
-        return (sum / (double) (stop - start));
     }
 
     public double[] getPoints() {

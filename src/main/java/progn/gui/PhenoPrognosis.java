@@ -3,16 +3,17 @@ package progn.gui;
 //import javax.swing.UIManager;
 //import javax.swing.WindowConstants;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import progn.TemperatureCurve;
 import progn.YearCalendar;
 import progn.entity.ClimateZone;
 import progn.entity.Sort;
-import progn.gui.PrognoseFrame;
 import progn.loaders.ClimateLoader;
 import progn.loaders.SortLoader;
 
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -205,7 +206,7 @@ public class PhenoPrognosis {
             result2 = Math.pow(p[x], exp) * factor;
         } while ((result1 > (day + x - 1)) == (result2 > (day + x)));
         double[] m = {result1, result2};
-        nextPhaseDay += ((int) (TemperatureCurve.countMiddle(m, 0, 2)));
+        nextPhaseDay += ((int) (new DescriptiveStatistics(Arrays.copyOfRange(m, 0, 2)).getMean()));
     }
 
     public void endWork() {
