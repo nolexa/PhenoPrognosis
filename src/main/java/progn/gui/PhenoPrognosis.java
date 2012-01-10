@@ -8,69 +8,38 @@ import progn.TemperatureCurve;
 import progn.YearCalendar;
 import progn.entity.ClimateZone;
 import progn.entity.Sort;
-import progn.loaders.ClimateLoader;
-import progn.loaders.SortLoader;
 
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class PhenoPrognosis {
-    Sort sort;
-    ClimateZone zone;
-    Sort[] sorts;
-    ClimateZone[] zones;
-    int nextPhaseDay = 122;
-    int startDecade;
-    int increment;
-    TemperatureCurve curve;
-    PrognoseFrame frame;
-    boolean interrupted = false;
-    int startPer = 0;
+    private Sort sort;
+    private ClimateZone zone;
+    private int nextPhaseDay = 122;
+    private int startDecade;
+    private int increment;
+    private TemperatureCurve curve;
+    private boolean interrupted = false;
+    private int startPer = 0;
 
     private Locale locale = new Locale("ru");
     private ResourceBundle bundle = ResourceBundle.getBundle("messages", locale);
 
-    // Construct the application
-    public PhenoPrognosis(URL base) {
-        /*
-           * PhenoPhase[] lifeCycle = new PhenoPhase[] { new
-           * PhenoPhase(4.3,-0.82), new PhenoPhase(5.6,-0.69), new
-           * PhenoPhase(8.3,-1.62) };
-           */
-        // sort = new Sort("","","",lifeCycle);
-        SortLoader sl = new SortLoader("sorts.txt", base);
-        ClimateLoader cl = new ClimateLoader("zones.txt", base);
-        String[] sn = new String[sl.getSorts().size()];
-        String[] zn = new String[cl.getZones().size()];
-        sorts = new Sort[sl.getSorts().size()];
-        zones = new ClimateZone[cl.getZones().size()];
-        for (int x = 0; x < sl.getSorts().size(); x++) {
-            Sort s = sl.getSorts().get(x);
-            sorts[x] = s;
-            sn[x] = s.getCulture() + " " + s.getType() + " " + s.getPrecocity();
-        }
-        for (int x = 0; x < cl.getZones().size(); x++) {
-            ClimateZone s = cl.getZones().get(x);
-            zones[x] = s;
-            zn[x] = s.getName();
-            //System.out.println(zn[x]);
-        }
-        frame = new PrognoseFrame(this, sn, zn);
-    }
-
-    public void startPrognoze(int s, int z, int start) {
-        sort = sorts[s];
-        zone = zones[z];
+    public String startPrognoze(Sort sort, ClimateZone zone, int start, int startPeriod) {
+        this.sort = sort;
+        this.zone = zone;
+        this.startPer = startPeriod;
         // System.out.println("Z: "+zone.temp[0]);
         nextPhaseDay = start;
         // System.out.println(start);
-        prognoze();
+        StringBuilder textOutput = new StringBuilder();
+        prognoze(textOutput);
+        return textOutput.toString();
     }
 
-    public void prognoze() {
+    public void prognoze(StringBuilder textOutput) {
         for (int lifePhase = startPer; lifePhase < sort.getLifeCycle().length; lifePhase++) {
             int xx[] = YearCalendar.dayToDecadeSpec(nextPhaseDay);
             int xx2[] = YearCalendar.dayToDecade(nextPhaseDay);
@@ -91,18 +60,18 @@ public class PhenoPrognosis {
                 }
             } catch (ArrayIndexOutOfBoundsException e) {
                 // e.printStackTrace();
-                frame.area.append("Температурные данные на данный период отсутствуют");
+                textOutput.append("Температурные данные на данный период отсутствуют");
                 // interrupted = true;
                 return;
             }
             //Add info on currect life phase
-            addInfo(lifePhase);
+            addInfo(lifePhase, textOutput);
             //Calculate next life phase
             try {
                 compare(lifePhase);
             } catch (ArrayIndexOutOfBoundsException e) {
                 // e.printStackTrace();
-                frame.area.append("Не созреет");
+                textOutput.append("Не созреет");
                 // interrupted = true;
                 return;
             }
@@ -110,14 +79,14 @@ public class PhenoPrognosis {
         if (interrupted) {
             interrupted = false;
         } else {
-            addInfo(sort.getLifeCycle().length);
+            addInfo(sort.getLifeCycle().length, textOutput);
         }
     }
 
-    void addInfo(int cycle) {
+    private void addInfo(int cycle, StringBuilder textOutput) {
         if (interrupted)
             return;
-        frame.area.append(Sort.ALLNAMES[sort.getNames()[cycle]] + ": ");
+        textOutput.append(Sort.ALLNAMES[sort.getNames()[cycle]]).append(": ");
         int[] nextPhaseDate = YearCalendar.dayToDate(nextPhaseDay);
         String month = nextPhaseDate[0] + "";
         if (month.length() == 1) {
@@ -127,7 +96,7 @@ public class PhenoPrognosis {
         if (day.length() == 1) {
             day = "0" + day;
         }
-        frame.area.append(day + "." + month + "\n");
+        textOutput.append(day + "." + month + "\n");
         if (cycle == sort.getLifeCycle().length) {
             if (nextPhaseDay >= zone.getFrostDay()) {
                 System.out.println("Warn");
@@ -140,12 +109,12 @@ public class PhenoPrognosis {
                 if (day.length() == 1) {
                     day = "0" + day;
                 }
-                frame.area.append("\n" + MessageFormat.format(bundle.getString("first_frost_warning"), day, month));
+                textOutput.append("\n").append(MessageFormat.format(bundle.getString("first_frost_warning"), day, month));
             }
         }
     }
 
-    void compare(int cycle) throws ArrayIndexOutOfBoundsException {
+    private void compare(int cycle) throws ArrayIndexOutOfBoundsException {
         double factor = Math.pow(Math.E, sort.getLifeCycle()[cycle].getFactor());
         // System.out.println(factor);
         double exp = sort.getLifeCycle()[cycle].getExponent();
@@ -211,6 +180,5 @@ public class PhenoPrognosis {
 
     public void endWork() {
         curve = null;
-        frame = null;
     }
 }

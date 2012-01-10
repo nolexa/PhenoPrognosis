@@ -4,36 +4,39 @@ import progn.YearCalendar;
 import progn.entity.ClimateZone;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 public class ClimateLoader {
-    private BufferedReader reader;
     private List<ClimateZone> zones;
+    private List<String> zonesNames;
     private String buffer = null;
     private String name;
     private int start;
     private int frostDay;
 
-    public ClimateLoader(String fil, URL base) {
+    public ClimateLoader(File fil) {
+        BufferedReader reader;
         try {
-            URL file = new URL(base, fil);
-            reader = new BufferedReader(new InputStreamReader(file.openStream(), Charset.forName("UTF-8")));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(fil), Charset.forName("UTF-8")));
         } catch (Exception e) {
             System.out.println("���� �� ��������");
             e.printStackTrace();
+            return;
         }
         zones = new ArrayList<>();
+        zonesNames = new ArrayList<>();
         boolean result = true;
-        result = skipLines();
+        result = skipLines(reader);
         while (result) {
-            readHeader();
-            readFields();
-            result = skipLines();
+            readHeader(reader);
+            readFields(reader);
+            result = skipLines(reader);
         }
         for (int x = 0; x < zones.size(); x++) {
             ClimateZone z = zones.get(x);
@@ -41,7 +44,7 @@ public class ClimateLoader {
         }
     }
 
-    boolean skipLines() {
+    boolean skipLines(BufferedReader reader) {
         for (; ; ) {
             String s = null;
             try {
@@ -58,7 +61,7 @@ public class ClimateLoader {
         }
     }
 
-    void readHeader() {
+    void readHeader(BufferedReader reader) {
         String s1 = null;
         String s2 = null;
         String s3 = null;
@@ -91,7 +94,7 @@ public class ClimateLoader {
 //    System.out.println(d+" "+m);
     }
 
-    void readFields() {
+    void readFields(BufferedReader reader) {
         double[] values = new double[0];
         for (; ; ) {
             String s = null;
@@ -116,7 +119,7 @@ public class ClimateLoader {
             }
             double[] val2 = new double[values.length + 1];
             System.arraycopy(values, 0, val2, 0, values.length);
-            val2[val2.length - 1] = Double.valueOf(lastToken).doubleValue();
+            val2[val2.length - 1] = Double.valueOf(lastToken);
             values = val2;
         }
     }
@@ -124,10 +127,15 @@ public class ClimateLoader {
     void buildZone(double[] values) {
 //    System.out.println("build");
         zones.add(new ClimateZone(name, start, values, frostDay));
+        zonesNames.add(name);
     }
 
     public List<ClimateZone> getZones() {
         return zones;
+    }
+
+    public List<String> getZonesNames() {
+        return zonesNames;
     }
 }
 

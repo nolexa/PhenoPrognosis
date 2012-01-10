@@ -5,51 +5,56 @@ package progn.loaders;
 import progn.entity.PhenoPhase;
 import progn.entity.Sort;
 
-import java.io.*;
-import java.util.*;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.*;
 
 public class SortLoader {
-	private BufferedReader reader;
-	private List<Sort> sorts;
+    private List<Sort> sorts;
+    private List<String> sortDescriptions;
 
-	public SortLoader(String fil, URL base) {
+	public SortLoader(File file) {
 		sorts = new ArrayList<>();
+        sortDescriptions = new ArrayList<>();
+
 		try {
-			URL file = new URL(base, fil);
-			reader = new BufferedReader(new InputStreamReader(file.openStream(), Charset.forName("UTF-8")));
-			for (;;) {
-				String[] group = new String[5];
-				for (int x = 0; x < group.length; x++) {
-					String s = reader.readLine();
-					if (s.equals("") || s.startsWith("#")) {
-						x--;
-					} else {
-						group[x] = s;
-					}
-				}
-				Map table = readFields(group);
-				 //System.out.println(table);
-				String[] keys = { "культура", "сорт", "скороспелость", "фазы",
-						"названия" };
-				String[] values = new String[keys.length];
-				for (int x = 0; x < keys.length; x++) {
-					if (table.get(keys[x]) == null) {
-						 System.out.println("Can't find value for " + keys[x]);
-					}
-					values[x] = (String) (table.get(keys[x]));
-					 //System.out.println(values[x]);
-				}
-				if(values[2] == null){
-					values[2] = "";
-				}
-				Sort sss = new Sort(values[1], values[2], values[0],
-						parsePhase(values[3]), parseNames(values[4]));
-				// System.out.println(sss);
-				sorts.add(sss);
-			}
-		} catch (NullPointerException e) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+            while (true) {
+                String[] group = new String[5];
+                for (int x = 0; x < group.length; x++) {
+                    String s = reader.readLine();
+                    if (s.equals("") || s.startsWith("#")) {
+                        x--;
+                    } else {
+                        group[x] = s;
+                    }
+                }
+                Map table = readFields(group);
+                 //System.out.println(table);
+                String[] keys = { "культура", "сорт", "скороспелость", "фазы",
+                        "названия" };
+                String[] values = new String[keys.length];
+                for (int x = 0; x < keys.length; x++) {
+                    if (table.get(keys[x]) == null) {
+                         System.out.println("Can't find value for " + keys[x]);
+                    }
+                    values[x] = (String) (table.get(keys[x]));
+                     //System.out.println(values[x]);
+                }
+                if(values[2] == null){
+                    values[2] = "";
+                }
+                Sort sss = new Sort(values[1], values[2], values[0],
+                        parsePhase(values[3]), parseNames(values[4]));
+                // System.out.println(sss);
+
+                sorts.add(sss);
+                sortDescriptions.add(sss.getDescription());
+            }
+        } catch (NullPointerException e) {
 		} catch (Exception e) {
 			// System.out.println();
 			e.printStackTrace();
@@ -76,8 +81,8 @@ public class SortLoader {
 		StringTokenizer st = new StringTokenizer(sourse, " ,;");
 		PhenoPhase[] phases = new PhenoPhase[st.countTokens() / 2];
 		for (int x = 0; x < phases.length; x++) {
-			double factor = Double.valueOf(st.nextToken()).doubleValue();
-			double exponent = Double.valueOf(st.nextToken()).doubleValue();
+			double factor = Double.valueOf(st.nextToken());
+			double exponent = Double.valueOf(st.nextToken());
 			phases[x] = new PhenoPhase(factor, exponent);
 		}
 		return phases;
@@ -94,5 +99,9 @@ public class SortLoader {
 
     public List<Sort> getSorts() {
         return sorts;
+    }
+
+    public List<String> getSortDescriptions() {
+        return sortDescriptions;
     }
 }

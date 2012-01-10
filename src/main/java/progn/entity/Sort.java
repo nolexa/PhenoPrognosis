@@ -55,4 +55,8 @@ public class Sort {
     public int[] getNames() {
         return names;
     }
+
+    public String getDescription() {
+        return getCulture() + " " + getType() + " " + getPrecocity();
+    }
 }

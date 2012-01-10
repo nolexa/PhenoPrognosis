@@ -2,6 +2,7 @@ package progn.gui;
 
 import progn.YearCalendar;
 import progn.entity.Sort;
+import progn.loaders.Model;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -14,15 +15,15 @@ import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 public class PrognoseFrame extends Frame implements ItemListener {
-	Choice sort_choice;
-	Choice zone_choice;
-	Choice startperiod_choice;
-	TextArea area;
-	TextField startdate_field;
-	Button b;
-	Button b2;
-	Button b3;
-	PhenoPrognosis progn;
+    private Model model;
+	private Choice sort_choice;
+    private Choice zone_choice;
+    private Choice startperiod_choice;
+    private TextArea area;
+    private TextField startdate_field;
+    private Button b;
+    private Button b2;
+    private Button b3;
 
     private Locale locale = new Locale("ru");
     private ResourceBundle bundle =  ResourceBundle.getBundle("messages", locale);
@@ -36,10 +37,9 @@ public class PrognoseFrame extends Frame implements ItemListener {
         }
     }
 
-	public PrognoseFrame(PhenoPrognosis progn, String[] sortNames,
-			String[] zoneNames) {
+	public PrognoseFrame(Model model) {
 		super("Фенологический прогноз");
-		this.progn = progn;
+        this.model = model;
 
 		setLayout(new BorderLayout());
 
@@ -79,11 +79,11 @@ public class PrognoseFrame extends Frame implements ItemListener {
 		sort_choice = new Choice();
 		zone_choice = new Choice();
 		startperiod_choice = new Choice();
-		for (int x = 0; x < sortNames.length; x++) {
-			sort_choice.addItem(sortNames[x]);
+		for (String sortDescr: model.getSortDescriptions()) {
+			sort_choice.addItem(sortDescr);
 		}
-		for (int x = 0; x < zoneNames.length; x++) {
-			zone_choice.addItem(zoneNames[x]);
+		for (String zoneName: model.getZonesNames()) {
+			zone_choice.addItem(zoneName);
 		}
 		sort_choice.select(0);
 		zone_choice.select(0);
@@ -148,12 +148,12 @@ public class PrognoseFrame extends Frame implements ItemListener {
 			return;
 		}
 		int da = YearCalendar.dateToDay(day, month);
-		progn.startPer = startperiod_choice.getSelectedIndex();
-		progn.startPrognoze(s, z, da);
+        PhenoPrognosis progn = new PhenoPrognosis();
+		String result = progn.startPrognoze(model.getSorts().get(s), model.getZones().get(z), da, startperiod_choice.getSelectedIndex());
+        area.append(result);
 	}
 
 	public void exit_actionPerformed(ActionEvent e) {
-		progn.endWork();
 		dispose();
 	}
 
@@ -162,7 +162,7 @@ public class PrognoseFrame extends Frame implements ItemListener {
 	}
 
 	public void itemStateChanged(ItemEvent e) {
-		Sort sort = progn.sorts[sort_choice.getSelectedIndex()];
+		Sort sort = model.getSorts().get(sort_choice.getSelectedIndex());
 		int sel = startperiod_choice.getSelectedIndex();
 		startperiod_choice.removeAll();
 		for (int x = 0; x < sort.getNames().length - 1; x++) {

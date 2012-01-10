@@ -18,7 +18,7 @@ public class Starter extends Applet {
 	public boolean action(Event e, Object target) {
 		if (target == name) {
 			/* При нажатии кнопки запустить */
-			new PhenoPrognosis(getCodeBase());
+			new PhenoPrognosis();
 			return true;
 		}
 		return false;
