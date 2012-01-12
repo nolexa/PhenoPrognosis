@@ -3,6 +3,7 @@ package progn.gui;
 import progn.YearCalendar;
 import progn.entity.Sort;
 import progn.loaders.Model;
+import progn.solver.PhenoPrognosis;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

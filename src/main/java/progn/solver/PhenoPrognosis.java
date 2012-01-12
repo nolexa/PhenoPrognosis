@@ -1,4 +1,4 @@
-package progn.gui;
+package progn.solver;
 
 //import javax.swing.UIManager;
 //import javax.swing.WindowConstants;
@@ -11,8 +11,6 @@ import progn.entity.Sort;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class PhenoPrognosis {
     private Sort sort;
@@ -24,22 +22,17 @@ public class PhenoPrognosis {
     private boolean interrupted = false;
     private int startPer = 0;
 
-    private Locale locale = new Locale("ru");
-    private ResourceBundle bundle = ResourceBundle.getBundle("messages", locale);
-
-    public String startPrognoze(Sort sort, ClimateZone zone, int start, int startPeriod) {
+    public Solution startPrognoze(Sort sort, ClimateZone zone, int start, int startPeriod) {
         this.sort = sort;
         this.zone = zone;
         this.startPer = startPeriod;
         // System.out.println("Z: "+zone.temp[0]);
         nextPhaseDay = start;
         // System.out.println(start);
-        StringBuilder textOutput = new StringBuilder();
-        prognoze(textOutput);
-        return textOutput.toString();
+        return prognoze();
     }
 
-    public void prognoze(StringBuilder textOutput) {
+    public Solution prognoze() {
         for (int lifePhase = startPer; lifePhase < sort.getLifeCycle().length; lifePhase++) {
             int xx[] = YearCalendar.dayToDecadeSpec(nextPhaseDay);
             int xx2[] = YearCalendar.dayToDecade(nextPhaseDay);
@@ -62,10 +55,10 @@ public class PhenoPrognosis {
                 // e.printStackTrace();
                 textOutput.append("Температурные данные на данный период отсутствуют");
                 // interrupted = true;
-                return;
+                throw new ClimateDataNotAvailableException();
             }
             //Add info on currect life phase
-            addInfo(lifePhase, textOutput);
+            addInfo(lifePhase);
             //Calculate next life phase
             try {
                 compare(lifePhase);
@@ -73,7 +66,7 @@ public class PhenoPrognosis {
                 // e.printStackTrace();
                 textOutput.append("Не созреет");
                 // interrupted = true;
-                return;
+                throw new RipeningNotPossibleException();
             }
         }
         if (interrupted) {
@@ -83,7 +76,7 @@ public class PhenoPrognosis {
         }
     }
 
-    private void addInfo(int cycle, StringBuilder textOutput) {
+    private Solution addInfo(int cycle, StringBuilder textOutput) {
         if (interrupted)
             return;
         textOutput.append(Sort.ALLNAMES[sort.getNames()[cycle]]).append(": ");
@@ -176,9 +169,5 @@ public class PhenoPrognosis {
         } while ((result1 > (day + x - 1)) == (result2 > (day + x)));
         double[] m = {result1, result2};
         nextPhaseDay += ((int) (new DescriptiveStatistics(Arrays.copyOfRange(m, 0, 2)).getMean()));
-    }
-
-    public void endWork() {
-        curve = null;
     }
 }

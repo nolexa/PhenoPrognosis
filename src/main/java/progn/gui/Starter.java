@@ -1,5 +1,7 @@
 package progn.gui;
 
+import progn.solver.PhenoPrognosis;
+
 import java.applet.Applet;
 import java.awt.*;
 
